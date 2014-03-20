@@ -13,6 +13,8 @@ module Weapon where
 
 Мысля: на карте мира хранить только существ, не умеющих двигаться, с их координатами.
 
+Так, виды тайлов пока будут просто трава, земля, вода, воздух и лава:).
+
 Вспомогательные типы данных:
 Имя
 Масса
@@ -43,6 +45,15 @@ Movable
 
 -}
 
+data Tile = Water | Ground | Air | Lava
+ deriving(Eq)
+
+instance Show Tile where
+	show Water = "w"
+	show Ground = "."
+	show Air = "O"
+	show Lava = "l"
+
 
 data Name = Name String
  deriving(Show,Eq)
@@ -56,10 +67,10 @@ instance HumanRace Human where
 	func = undefined
 
 instance Movable Human where
-	move (Human n (Coordinate Point x y)) (Coordinate Point xn yn) = Human n (xn yn)
+	move (Human n c) cn = Human n cn
 
 instance Creature Human where
-	attack a b c = undefined
+	attack a b = undefined
 
 class Movable a where
 	move::a->Coordinate->a -- кто, откуда и куда двигается.
@@ -85,10 +96,17 @@ data Coordinate = Coordinate Point
 data Distance = Distance Int
  deriving(Show,Eq)
 
-data World = World [(Maybe Human,Point)]
- deriving(Show,Eq)
+data World = World [(Tile,Coordinate)]
+ deriving(Eq)
 
-world = World [(Just (Human (Name "Vasia")), Point 1 1), (Just (Human (Name "Petia")), Point 4 4), (Nothing, Point 3 3)]
+instance Show World where
+	show (World []) = ""
+	show (World x) = (show t) ++ (show $World $tail x)
+		where t = fst$ head x
+
+worldMap::World
+worldMap = World [(Water,Coordinate (Point 0 0)),(Water,Coordinate (Point 0 1)), (Ground,Coordinate (Point 0 2)),
+	 (Ground,Coordinate (Point 1 0)),(Ground,Coordinate (Point 1 1)),(Ground,Coordinate (Point 1 2))]
 
 data Damage = Damage Int
  deriving(Show,Eq,Ord)
